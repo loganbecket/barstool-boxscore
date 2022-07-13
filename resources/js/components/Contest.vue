@@ -1,23 +1,34 @@
 <template>
-    <v-container fluid>
-        <v-row>
-            <v-col
-                class="p-0"
-            >
-                <v-card
-                    tile
-                >
-                    <top-box />
-                </v-card>
-            </v-col>
-        </v-row>
+     <v-app>
 
-        <v-row>
-            <v-col>
-                <contest-tabs />
-            </v-col>
-        </v-row>
-    </v-container>
+        <app-menu />
+
+        <v-main>
+            <v-container fluid>
+                <v-row>
+                    <v-col
+                        class="pa-0"
+                    >
+                        <v-card
+                            tile
+                            style="border: none;"
+                        >
+                            <top-box />
+                        </v-card>
+                    </v-col>
+                </v-row>
+
+                <v-row>
+                    <v-col>
+                        <contest-tabs />
+                    </v-col>
+                </v-row>
+            </v-container>
+        </v-main>
+
+        <app-footer />
+
+    </v-app>
 </template>
 
 <script>

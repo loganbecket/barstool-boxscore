@@ -4,7 +4,7 @@
             <v-col 
                 class="my-auto"
             >
-                <div class="d-flex justify-content-around">
+                <div class="tw-flex tw-justify-around">
                     <v-img
                         :src="'/images/' + logo_home"
                         max-height="150px"
@@ -12,19 +12,19 @@
                         contain
                     />
 
-                    <h1 class="primary--text my-auto">
+                    <div class="primary--text my-auto tw-text-4xl tw-font-bold">
                         92
-                    </h1>
+                    </div>
                 </div>
                 
             </v-col>
             
             
-            <v-col class="d-flex justify-content-around pb-0">
+            <v-col class="tw-flex tw-justify-around pb-0">
                 <div
                     class="flex-column my-auto mb-0"
                 >
-                    <h5 class="text-center">{{ gameStatus.toUpperCase() }}</h5>
+                    <h5 class="text-center tw-text-2xl">{{ gameStatus.toUpperCase() }}</h5>
                     <p class="text-center">
                         {{ team_away }} @ {{ team_home }}
                     </p>
@@ -53,10 +53,10 @@
             <v-col 
                 class="my-auto"
             >
-                <div class="d-flex justify-content-around">
-                    <h1 class="primary--text my-auto">
+                <div class="tw-flex tw-justify-around">
+                    <div class="primary--text my-auto tw-text-4xl tw-font-bold">
                         96
-                    </h1>
+                    </div>
                     <v-img
                         :src="'/images/' + logo_away"
                         max-height="150px"

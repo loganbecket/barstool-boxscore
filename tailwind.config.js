@@ -1,4 +1,5 @@
 module.exports = {
+  prefix: 'tw-',
   content: [
     './storage/framework/views/*.php',
     './resources/**/*.blade.php',

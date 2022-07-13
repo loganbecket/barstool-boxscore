@@ -21,6 +21,14 @@
                                     <v-btn 
                                         icon
                                         class="px-2"
+                                        href="https://github.com/loganbecket/barstool-boxscore"
+                                    >
+                                        <v-icon>mdi-github</v-icon>
+                                    </v-btn>
+
+                                    <v-btn 
+                                        icon
+                                        class="px-2"
                                         href="https://www.linkedin.com/company/jupiter-media-solutions/"
                                     >
                                         <v-icon>mdi-linkedin</v-icon>

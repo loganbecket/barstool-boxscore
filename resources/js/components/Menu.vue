@@ -4,14 +4,16 @@
             color="#eee"
             class="px-16"
         >
-            <v-img
-                src="/images/barstool_logo.png"
-                contain
-                height="48px"
-                width="200px"
-                position="left"
-                class="shrink"
-            />
+            <div class="tw-flex tw-shrink pr-8">
+                <v-img
+                    src="/images/barstool_logo.png"
+                    contain
+                    height="48px"
+                    position="left"
+                    class="tw-cursor-pointer"
+                    @click="returnHome()"
+                />
+            </div>
 
             <div
                 v-for="(sport, i) in sports"
@@ -22,6 +24,7 @@
                     large
                     color="secondary"
                     class="mx-2"
+                    @click="loadSport(sport)"
                 >
                     {{ sport }}
                 </v-btn>
@@ -37,16 +40,21 @@ export default {
         }
     },
 
-    mounted() {
-        axios.post('boxscore').then(response => {
-            console.log(response.data);
-        });
-    }
+    methods: {
+        loadSport(sport) {
+            window.location.replace("/contest/" + sport.toLowerCase());
+        },
+
+        returnHome() {
+            window.location.replace("/");
+        }
+    },
+
 }
 </script>
 
 <style scoped>
-    >>> .v-btn__content {
+    .v-btn ::v-deep(.v-btn__content) {
         font-size: 1.25rem;
         font-weight: bold;
     }

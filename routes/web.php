@@ -7,4 +7,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/boxscore', [BoxscoreController::class, 'boxscore']);
+Route::get('/contest/{league}', function () {
+    return view('contest');
+});
+
+Route::get('/score/{league}', [BoxscoreController::class, 'score']);
