@@ -4,7 +4,7 @@
         <app-menu />
 
         <v-main>
-            <box-score />
+            <contest />
         </v-main>
 
         <app-footer />

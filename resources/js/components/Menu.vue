@@ -15,7 +15,7 @@
 
             <div
                 v-for="(sport, i) in sports"
-                :key=i
+                :key="i"
             >
                 <v-btn 
                     text
@@ -33,9 +33,14 @@
 export default {
     data() {
         return {
-            // TODO: pull dynamically
             sports: ['NBA', 'MLB']
         }
+    },
+
+    mounted() {
+        axios.post('boxscore').then(response => {
+            console.log(response.data);
+        });
     }
 }
 </script>

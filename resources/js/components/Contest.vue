@@ -1,12 +1,36 @@
 <template>
-    <v-container>
-        <div>Seconds until next refresh: {{ countdown }}</div>
+    <v-container fluid>
+        <v-row>
+            <v-col
+                class="p-0"
+            >
+                <v-card
+                    tile
+                >
+                    <top-box />
+                </v-card>
+            </v-col>
+        </v-row>
+
+        <v-row>
+            <v-col>
+                <contest-tabs />
+            </v-col>
+        </v-row>
     </v-container>
 </template>
 
 <script>
 
+import TopBox from './TopBox.vue';
+import ContestTabs from './ContestTabs.vue';
+
 export default {
+    components: {
+        'top-box': TopBox,
+        'contest-tabs': ContestTabs,
+    },
+
     data() {
         return {
             data: {},
