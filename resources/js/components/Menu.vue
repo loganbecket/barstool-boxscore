@@ -11,12 +11,12 @@
                     height="48px"
                     position="left"
                     class="tw-cursor-pointer"
-                    @click="returnHome()"
+                    @click="loadView('')"
                 />
             </div>
 
             <div
-                v-for="(sport, i) in sports"
+                v-for="(league, i) in leagues"
                 :key="i"
             >
                 <v-btn 
@@ -24,9 +24,9 @@
                     large
                     color="secondary"
                     class="mx-2"
-                    @click="loadSport(sport)"
+                    @click="loadView(league)"
                 >
-                    {{ sport }}
+                    {{ league }}
                 </v-btn>
             </div>
         </v-app-bar>
@@ -36,18 +36,14 @@
 export default {
     data() {
         return {
-            sports: ['NBA', 'MLB']
+            leagues: ['NBA', 'MLB']
         }
     },
 
     methods: {
-        loadSport(sport) {
-            window.location.replace("/contest/" + sport.toLowerCase());
+        loadView(league) {
+            window.location.replace('/' + league.toLowerCase());
         },
-
-        returnHome() {
-            window.location.replace("/");
-        }
     },
 
 }

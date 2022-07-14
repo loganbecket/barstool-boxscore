@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('boxscores', function (Blueprint $table) {
             $table->id();
+            $table->string('period');
+            $table->integer('score_home');
+            $table->integer('score_away');
             $table->timestamps();
         });
     }

@@ -1,9 +1,12 @@
 <template>
     <v-app>
+        
         <app-menu />
 
         <v-main>        
-            <v-container class="pt-12">
+            <v-container
+                class="pt-16"
+            >
                 <v-row>
                     <v-col>
                         <div class="tw-text-2xl">
@@ -47,15 +50,9 @@
         </v-main>
 
         <app-footer />
-        
+            
     </v-app>
 </template>
-
-<script>
-export default {
-    
-}
-</script>
 
 <style scoped>
     li {

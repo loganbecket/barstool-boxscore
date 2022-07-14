@@ -10,14 +10,14 @@
                     v-if="tab == 0"
                     flat
                 >
-                    <contest-scores />
+                    <game-scores />
                 </v-card>
 
                 <v-card
                     v-else
                     flat
                 >
-                    <contest-stats />
+                    <game-stats />
                 </v-card>
 
             </v-tab-item>
@@ -27,30 +27,24 @@
 </template>
 
 <script>
-    import ContestScores from "./ContestScores.vue"
-    import ContestStats from "./ContestStats.vue"
+    import GameScores from "./GameScores.vue"
+    import GameStats from "./GameStats.vue"
 
     export default {
         components: {
-            'contest-scores': ContestScores,
-            'contest-stats': ContestStats
+            'game-scores': GameScores,
+            'game-stats': GameStats
         },
 
         data() {
             return {
                 tab: 0,
-                tabItems: ['Live Score', 'Stats'],
-            }
-        },
-
-        computed: {
-            content() {
-                return "The selected tab is " + this.tabItems[this.tab]
+                tabItems: ['Score', 'Stats'],
             }
         },
 
         mounted() {
-            Event.$on('setMatchTab', tab => {
+            Event.$on('setBoxscoreTab', tab => {
                 this.tab = tab;
             });
         }

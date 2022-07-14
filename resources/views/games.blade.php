@@ -1,5 +1,5 @@
 @extends('layouts.app')
 
 @section('content')
-    <contest />
+    <game-list league="{{ $league }}"/>
 @endsection

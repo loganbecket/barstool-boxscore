@@ -24,13 +24,13 @@
                 <div
                     class="flex-column my-auto mb-0"
                 >
-                    <h5 class="text-center tw-text-2xl">{{ gameStatus.toUpperCase() }}</h5>
-                    <p class="text-center">
+                    <div class="text-center tw-text-2xl tw-py-2">{{ gameStatus.toUpperCase() }}</div>
+                    <div class="text-center">
                         {{ team_away }} @ {{ team_home }}
-                    </p>
-                    <p class="text-center">
-                        {{ eventDate }}
-                    </p>
+                    </div>
+                    <div class="text-center">
+                        {{ gameDate }}
+                    </div>
                 
                     <v-tabs
                         v-model="tab"
@@ -72,10 +72,12 @@
 <script>
 
 export default {
+    props: ['game'],
+    
     data() {
         return {
             tab: 0,
-            tabItems: ['Live Score', 'Stats'],
+            tabItems: ['Score', 'Stats'],
             team_home: "Miami Heat",
             team_away: "Oklahoma City Thunder",
             logo_home: "thunder.png",
@@ -86,7 +88,7 @@ export default {
     },
 
     computed: {
-        eventDate() {
+        gameDate() {
             let d = new Date(this.dateTime);
             return d.toLocaleTimeString([], {
                 year: 'numeric', 
@@ -100,12 +102,9 @@ export default {
 
     methods: {
         setTab(tab) {
-            Event.$emit('setMatchTab', tab);
+            Event.$emit('setBoxscoreTab', tab);
         }
     },
 
-    mounted() {
-        // query data
-    }
 }
 </script>
