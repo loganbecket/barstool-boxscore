@@ -5,13 +5,14 @@
                 v-for="(item, i) in tabItems"
                 :key="i"
             >
-                <v-card v-if="tab == 0" flat>
+                <v-container v-if="tab == 0" flat class="pa-0">
                     <game-scores :game="game" />
-                </v-card>
+                    <team-stats :game="game" />
+                </v-container>
 
-                <v-card v-else flat>
-                    <game-stats :game="game" />
-                </v-card>
+                <v-container v-else flat class="pa-0">
+                    <player-stats :game="game" />
+                </v-container>
 
             </v-tab-item>
         </v-tabs-items>
@@ -20,12 +21,14 @@
 
 <script>
     import GameScores from "./GameScores.vue"
-    import GameStats from "./GameStats.vue"
+    import PlayerStats from "./PlayerStats.vue"
+    import TeamStats from "./TeamStats.vue"
 
     export default {
         components: {
             'game-scores': GameScores,
-            'game-stats': GameStats
+            'player-stats': PlayerStats,
+            'team-stats': TeamStats,
         },
 
         props: ['game'],

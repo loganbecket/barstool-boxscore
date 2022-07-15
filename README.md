@@ -7,6 +7,10 @@ Jupiter gives publishers the tools to build smarter proposals in less time. We d
 
 ## Barstool Sports Boxscore Challenge
 
+### Demo:
+
+<a href="https://barstool.planjupiter.com">https://barstool.planjupiter.com</a>
+
 ### Prerequisites:
 - A server running PHP 8.0+, Composer, and MySql
 - A web server that has been configured to serve the project directory

@@ -461,15 +461,15 @@ Ensure the default browser behavior of the `hidden` attribute.
     max-width: 1536px;
   }
 }
-.tw-m-4{
-  margin: 1rem;
-}
 .tw-my-auto{
   margin-top: auto;
   margin-bottom: auto;
 }
 .tw-mt-2{
   margin-top: 0.5rem;
+}
+.tw-mt-8{
+  margin-top: 2rem;
 }
 .tw-flex{
   display: flex;
@@ -482,6 +482,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 .tw-list-disc{
   list-style-type: disc;
+}
+.tw-justify-start{
+  justify-content: flex-start;
 }
 .tw-justify-around{
   justify-content: space-around;
@@ -506,6 +509,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-text-center{
   text-align: center;
 }
+.tw-text-3xl{
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+}
 .tw-text-xl{
   font-size: 1.25rem;
   line-height: 1.75rem;
@@ -517,10 +524,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .tw-text-4xl{
   font-size: 2.25rem;
   line-height: 2.5rem;
-}
-.tw-text-3xl{
-  font-size: 1.875rem;
-  line-height: 2.25rem;
 }
 .tw-font-bold{
   font-weight: 700;

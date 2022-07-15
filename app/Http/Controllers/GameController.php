@@ -49,10 +49,10 @@ class GameController extends Controller
         $data = Game::with([
             'homeTeam', 
             'awayTeam',
-            'score'
-        ])
-            ->where('id', $request->id)
-            ->first();
+            'score',
+            'homeTeamStats',
+            'awayTeamStats'
+        ])->where('id', $request->id)->first();
 
         return $data;
 
