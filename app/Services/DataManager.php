@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\Team;
 use App\Models\Score;
 use App\Models\TeamStat;
+use App\Models\PlayerStat;
 
 class DataManager
 {
@@ -51,6 +52,7 @@ class DataManager
         }
 
         self::loadTeamTotals($data, $game->id, $teamIds);
+        self::loadPlayerStats($data, $game->id, $teamIds);
 
     }
 
@@ -84,17 +86,52 @@ class DataManager
 
                 if (in_array(gettype($items), ['object', 'array'])) {
                     foreach ($items as $stat => $item) {
-                        self::persist($gameId, $teamId, $homeOrAway, $stat, $item);
+                        self::persistTeam($gameId, $teamId, $homeOrAway, $stat, $item);
                     }
                 } else {
-                    self::persist($gameId, $teamId, $homeOrAway, $key, $items);
+                    self::persistTeam($gameId, $teamId, $homeOrAway, $key, $items);
                 }
             }
         });
     }
 
+
     /**
-     * Helper function to create of update a record
+     * Update or load the passed object as a normalized player stat
+     *
+     * @param $data object
+     * @param $gameId integer
+     * @param $teamIds array
+     * @return void
+     */
+    protected static function loadPlayerStats($data, $gameId, $teamIds): void
+    {
+        $validKeys = [
+            'home_stats', 
+            'away_stats', 
+            'home_batters', 
+            'away_batters', 
+        ];
+
+        collect($data)->each(function ($items, $key) use ($validKeys, $gameId, $teamIds) {
+            if (in_array($key, $validKeys)) {
+
+                $homeTeamId = $teamIds['homeTeamId'];
+                $awayTeamId = $teamIds['awayTeamId'];
+                $homeOrAway = substr($key, 0, 4);
+                $teamId = $homeOrAway == 'home' ? $homeTeamId : $awayTeamId;
+
+                foreach ($items as $item) {
+                    $data = collect($item)->toJson();
+                    self::persistPlayer($gameId, $teamId, $homeOrAway, $data, $item->display_name);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Helper function to create or update a record
      *
      * @param $gameId int
      * @param $teamId int
@@ -103,16 +140,37 @@ class DataManager
      * @param $value int|string
      * @return void
      */
-    protected static function persist($gameId, $teamId, $homeOrAway, $stat, $value): void
+    protected static function persistTeam($gameId, $teamId, $homeOrAway, $stat, $value): void
     {
-        TeamStat::firstOrCreate([
+        $fields = [
             'game_id' => $gameId,
             'team_id' => $teamId,
             'home_away' => $homeOrAway,
             'stat' => $stat
-        ],
-        [
-            'value' => $value
-        ]);
+        ];
+        TeamStat::firstOrCreate($fields, ['value' => $value]);
     }
+
+
+    /**
+     * Helper function to create or update a record
+     *
+     * @param $gameId int
+     * @param $teamId int
+     * @param $homeOrAway string
+     * @param $statObj Object
+     * @param $player string
+     * @return void
+     */
+    protected static function persistPlayer($gameId, $teamId, $homeOrAway, $statObj, $player): void
+    {
+        $fields = [
+            'game_id' => $gameId,
+            'team_id' => $teamId,
+            'player' => $player,
+            'home_away' => $homeOrAway,
+        ];
+        PlayerStat::firstOrCreate($fields, ['stat_object' => $statObj]);
+    }
+
 }

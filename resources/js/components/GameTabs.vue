@@ -11,7 +11,8 @@
                 </v-container>
 
                 <v-container v-else flat class="pa-0">
-                    <player-stats :game="game" />
+                    <player-stats :game="game" side="home" />
+                    <player-stats :game="game" side="away" />
                 </v-container>
 
             </v-tab-item>

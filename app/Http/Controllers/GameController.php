@@ -51,7 +51,9 @@ class GameController extends Controller
             'awayTeam',
             'score',
             'homeTeamStats',
-            'awayTeamStats'
+            'awayTeamStats',
+            'homePlayerStats',
+            'awayPlayerStats'
         ])->where('id', $request->id)->first();
 
         return $data;
