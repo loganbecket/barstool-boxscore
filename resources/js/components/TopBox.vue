@@ -6,14 +6,14 @@
             >
                 <div class="tw-flex tw-justify-around">
                     <v-img
-                        :src="'/images/' + logo_home"
+                        :src="'/images/' + logo_away"
                         max-height="150px"
                         max-width="150px"
                         contain
                     />
 
                     <div class="primary--text my-auto tw-text-4xl tw-font-bold">
-                        92
+                        {{ away_score }}
                     </div>
                 </div>
                 
@@ -24,9 +24,9 @@
                 <div
                     class="flex-column my-auto mb-0"
                 >
-                    <div class="text-center tw-text-2xl tw-py-2">{{ gameStatus.toUpperCase() }}</div>
+                    <div class="text-center tw-text-2xl tw-py-2">{{ gameStatus }}</div>
                     <div class="text-center">
-                        {{ team_away }} @ {{ team_home }}
+                        {{ away_team }} @ {{ home_team }}
                     </div>
                     <div class="text-center">
                         {{ gameDate }}
@@ -55,10 +55,10 @@
             >
                 <div class="tw-flex tw-justify-around">
                     <div class="primary--text my-auto tw-text-4xl tw-font-bold">
-                        96
+                        {{ home_score }}
                     </div>
                     <v-img
-                        :src="'/images/' + logo_away"
+                        :src="'/images/' + logo_home"
                         max-height="150px"
                         max-width="150px"
                         contain
@@ -77,17 +77,63 @@ export default {
     data() {
         return {
             tab: 0,
-            tabItems: ['Score', 'Stats'],
-            team_home: "Miami Heat",
-            team_away: "Oklahoma City Thunder",
-            logo_home: "thunder.png",
-            logo_away: "heat.png",
-            dateTime: "2012-06-21T18:00:00-07:00",
-            gameStatus: "Final"
+            tabItems: ['Teams', 'Players'],
         }
     },
 
     computed: {
+        
+        dateTime() {
+            if (this.game) {
+                return this.game.start_date_time;
+            }
+            return null
+        },
+
+        home_team() {
+            if (this.game) {
+                return this.game.home_team.first_name + ' ' + this.game.home_team.last_name;
+            }
+            return null;
+        },
+
+        away_team() {
+            if (this.game) {
+                return this.game.away_team.first_name + ' ' + this.game.away_team.last_name;
+            }
+            return null;
+        },
+
+        logo_home() {
+            if (this.game) {
+                return this.game.home_team.last_name.toLowerCase() + '.png';
+            }
+            return "placeholder.png";
+        },
+
+        logo_away() {
+            if (this.game) {
+                return this.game.away_team.last_name.toLowerCase() + '.png';
+            }
+            return "placeholder.png";
+        },
+
+        home_score() {
+            if (this.game) {
+                let score = this.game.score;
+                return score.map(item => item.home_score).reduce((prev, next) => prev + next);
+            }
+            return 0;
+        },
+
+        away_score() {
+            if (this.game) {
+                let score = this.game.score;
+                return score.map(item => item.away_score).reduce((prev, next) => prev + next);
+            }
+            return 0;
+        },
+
         gameDate() {
             let d = new Date(this.dateTime);
             return d.toLocaleTimeString([], {
@@ -97,7 +143,22 @@ export default {
                 hour: 'numeric', 
                 minute: '2-digit'
             });
-        }
+        },
+
+        gameStatus() {
+            if (this.game) {
+                if (this.game.status == 'completed') {
+                    return 'FINAL';
+                }
+
+                let now = new Date();
+                let start = new Date(this.game.start_date_time);
+                if (this.game.status != 'completed' && now > start) {
+                    return 'LIVE'
+                }
+            }
+            return "";
+        } 
     },
 
     methods: {

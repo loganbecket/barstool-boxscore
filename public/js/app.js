@@ -5391,17 +5391,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _TopBox_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TopBox.vue */ "./resources/js/components/TopBox.vue");
 /* harmony import */ var _GameTabs_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./GameTabs.vue */ "./resources/js/components/GameTabs.vue");
+/* harmony import */ var _RefreshBar_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./RefreshBar.vue */ "./resources/js/components/RefreshBar.vue");
+
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   components: {
     'top-box': _TopBox_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
-    'game-tabs': _GameTabs_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+    'game-tabs': _GameTabs_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
+    'refresh-bar': _RefreshBar_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   props: ['id'],
   data: function data() {
     return {
-      game: {},
+      loading: false,
+      game: null,
       initialized: false,
       waitInSeconds: 15,
       timer: 0
@@ -5418,13 +5422,12 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     refreshData: function refreshData() {
-      Event.$emit('setLoadingStatus', true);
-      axios.post('/game/' + this.id).then(function (response) {
-        console.log(response.data); // TODO: remove artificial delay - done for effect until actual API request is made
+      var _this = this;
 
-        setTimeout(function () {
-          Event.$emit('setLoadingStatus', false);
-        }, 1000);
+      this.loading = true;
+      axios.post('/game/' + this.id).then(function (response) {
+        _this.game = response.data;
+        _this.loading = false;
       });
     }
   },
@@ -5484,74 +5487,54 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  data: function data() {
-    return {
-      loading: false,
-      team_home: "Thunder",
-      team_away: "Heat",
-      periods: [{
-        number: 1,
-        score_home: 18,
-        score_away: 22
-      }, {
-        number: 2,
-        score_home: 29,
-        score_away: 31
-      }, {
-        number: 3,
-        score_home: 25,
-        score_away: 19
-      }, {
-        number: 4,
-        score_home: 20,
-        score_away: 24
-      }],
-      periodType: "Quarter",
-      lastRefresh: null
-    };
-  },
+  props: ['game'],
   computed: {
+    home_team: function home_team() {
+      if (this.game) {
+        return this.game.home_team.last_name;
+      }
+
+      return null;
+    },
+    away_team: function away_team() {
+      if (this.game) {
+        return this.game.away_team.last_name;
+      }
+
+      return null;
+    },
     periodPrefix: function periodPrefix() {
-      if (this.periodType == "Quarter") {
+      if (this.game.league.toLowerCase() == "nba") {
         return "Q";
       }
 
       return "";
     },
+    periods: function periods() {
+      var score = [];
+
+      if (this.game) {
+        this.game.score.forEach(function (e) {
+          score.push({
+            number: e.period,
+            home_score: e.home_score,
+            away_score: e.away_score
+          });
+        });
+      }
+
+      return score;
+    },
     total_home: function total_home() {
       return this.periods.reduce(function (accumulator, object) {
-        return accumulator + object.score_home;
+        return accumulator + object.home_score;
       }, 0);
     },
     total_away: function total_away() {
       return this.periods.reduce(function (accumulator, object) {
-        return accumulator + object.score_away;
+        return accumulator + object.away_score;
       }, 0);
     }
-  },
-  methods: {
-    formattedDate: function formattedDate() {
-      var d = new Date();
-      return d.toLocaleTimeString([], {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-    }
-  },
-  mounted: function mounted() {
-    var _this = this;
-
-    Event.$on('setLoadingStatus', function (value) {
-      _this.loading = value;
-
-      if (!value) {
-        _this.lastRefresh = _this.formattedDate();
-      }
-    });
   }
 });
 
@@ -5568,7 +5551,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  props: ['game'],
+  data: function data() {
+    return {// 
+    };
+  }
+});
 
 /***/ }),
 
@@ -5592,10 +5581,11 @@ __webpack_require__.r(__webpack_exports__);
     'game-scores': _GameScores_vue__WEBPACK_IMPORTED_MODULE_0__["default"],
     'game-stats': _GameStats_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
+  props: ['game'],
   data: function data() {
     return {
       tab: 0,
-      tabItems: ['Score', 'Stats']
+      tabItems: ['Teams', 'Players']
     };
   },
   mounted: function mounted() {
@@ -5630,11 +5620,11 @@ __webpack_require__.r(__webpack_exports__);
   computed: {
     homeTeam: function homeTeam() {
       var home = this.game.home_team;
-      return home.first_name + home.last_name;
+      return home.first_name + " " + home.last_name;
     },
     awayTeam: function awayTeam() {
       var away = this.game.away_team;
-      return away.first_name + away.last_name;
+      return away.first_name + " " + away.last_name;
     },
     gameTime: function gameTime() {
       var d = new Date(this.game.start_date_time);
@@ -5688,6 +5678,48 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/RefreshBar.vue?vue&type=script&lang=js&":
+/*!*****************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/RefreshBar.vue?vue&type=script&lang=js& ***!
+  \*****************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  props: ['loading'],
+  data: function data() {
+    return {
+      lastRefresh: null
+    };
+  },
+  watch: {
+    loading: function loading() {
+      if (this.loading) {
+        this.lastRefresh = this.formattedDate();
+      }
+    }
+  },
+  methods: {
+    formattedDate: function formattedDate() {
+      var d = new Date();
+      return d.toLocaleTimeString([], {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/TopBox.vue?vue&type=script&lang=js&":
 /*!*************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/TopBox.vue?vue&type=script&lang=js& ***!
@@ -5704,16 +5736,69 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       tab: 0,
-      tabItems: ['Score', 'Stats'],
-      team_home: "Miami Heat",
-      team_away: "Oklahoma City Thunder",
-      logo_home: "thunder.png",
-      logo_away: "heat.png",
-      dateTime: "2012-06-21T18:00:00-07:00",
-      gameStatus: "Final"
+      tabItems: ['Teams', 'Players']
     };
   },
   computed: {
+    dateTime: function dateTime() {
+      if (this.game) {
+        return this.game.start_date_time;
+      }
+
+      return null;
+    },
+    home_team: function home_team() {
+      if (this.game) {
+        return this.game.home_team.first_name + ' ' + this.game.home_team.last_name;
+      }
+
+      return null;
+    },
+    away_team: function away_team() {
+      if (this.game) {
+        return this.game.away_team.first_name + ' ' + this.game.away_team.last_name;
+      }
+
+      return null;
+    },
+    logo_home: function logo_home() {
+      if (this.game) {
+        return this.game.home_team.last_name.toLowerCase() + '.png';
+      }
+
+      return "placeholder.png";
+    },
+    logo_away: function logo_away() {
+      if (this.game) {
+        return this.game.away_team.last_name.toLowerCase() + '.png';
+      }
+
+      return "placeholder.png";
+    },
+    home_score: function home_score() {
+      if (this.game) {
+        var score = this.game.score;
+        return score.map(function (item) {
+          return item.home_score;
+        }).reduce(function (prev, next) {
+          return prev + next;
+        });
+      }
+
+      return 0;
+    },
+    away_score: function away_score() {
+      if (this.game) {
+        var score = this.game.score;
+        return score.map(function (item) {
+          return item.away_score;
+        }).reduce(function (prev, next) {
+          return prev + next;
+        });
+      }
+
+      return 0;
+    },
     gameDate: function gameDate() {
       var d = new Date(this.dateTime);
       return d.toLocaleTimeString([], {
@@ -5723,6 +5808,22 @@ __webpack_require__.r(__webpack_exports__);
         hour: 'numeric',
         minute: '2-digit'
       });
+    },
+    gameStatus: function gameStatus() {
+      if (this.game) {
+        if (this.game.status == 'completed') {
+          return 'FINAL';
+        }
+
+        var now = new Date();
+        var start = new Date(this.game.start_date_time);
+
+        if (this.game.status != 'completed' && now > start) {
+          return 'LIVE';
+        }
+      }
+
+      return "";
     }
   },
   methods: {
@@ -5834,7 +5935,15 @@ var render = function render() {
     attrs: {
       game: _vm.game
     }
-  })], 1)], 1)], 1), _vm._v(" "), _c("v-row", [_c("v-col", [_c("game-tabs")], 1)], 1)], 1)], 1), _vm._v(" "), _c("app-footer")], 1);
+  })], 1)], 1)], 1), _vm._v(" "), _c("v-row", [_c("v-col", [_c("refresh-bar", {
+    attrs: {
+      loading: _vm.loading
+    }
+  }), _vm._v(" "), _c("game-tabs", {
+    attrs: {
+      game: _vm.game
+    }
+  })], 1)], 1)], 1)], 1), _vm._v(" "), _c("app-footer")], 1);
 };
 
 var staticRenderFns = [];
@@ -5869,7 +5978,9 @@ var render = function render() {
       tile: "",
       color: "#eee"
     }
-  }, [_c("v-card-title", [_c("div", {
+  }, [_c("div", {
+    staticClass: "tw-p-4 tw-pb-0 tw-flex"
+  }, [_c("div", {
     staticClass: "tw-flex tw-shrink pr-4"
   }, [_c("v-img", {
     attrs: {
@@ -5877,7 +5988,9 @@ var render = function render() {
       height: "50",
       contain: ""
     }
-  })], 1), _vm._v("\n                            Match-ups:    \n                        ")]), _vm._v(" "), _c("v-card-text", _vm._l(_vm.games, function (game, i) {
+  })], 1), _vm._v(" "), _c("div", {
+    staticClass: "tw-text-3xl tw-my-auto"
+  }, [_vm._v("\n                                Select a match-up:    \n                            ")])]), _vm._v(" "), _c("v-card-text", _vm._l(_vm.games, function (game, i) {
     return _c("game-tile", {
       key: i,
       attrs: {
@@ -5909,11 +6022,8 @@ var render = function render() {
   var _vm = this,
       _c = _vm._self._c;
 
-  return _c("div", [_vm.lastRefresh ? _c("div", [_vm._v("Data last refreshed at " + _vm._s(_vm.lastRefresh))]) : _c("div", [_vm._v("Preparing data...")]), _vm._v(" "), _c("v-card", {
-    staticClass: "tw-mt-2",
-    attrs: {
-      loading: _vm.loading
-    }
+  return _c("v-card", {
+    staticClass: "tw-mt-2"
   }, [_c("v-container", {
     staticClass: "elevation-3"
   }, [_c("v-row", {
@@ -5921,24 +6031,24 @@ var render = function render() {
   }, [_c("v-col"), _vm._v(" "), _vm._l(_vm.periods, function (period, i) {
     return _c("v-col", {
       key: i
-    }, [_vm._v("\n                    " + _vm._s(_vm.periodPrefix) + _vm._s(period.number) + "\n                ")]);
+    }, [_vm._v("\n                " + _vm._s(_vm.periodPrefix) + _vm._s(period.number) + "\n            ")]);
   }), _vm._v(" "), _c("v-col", [_vm._v("Total")])], 2), _vm._v(" "), _c("v-row", [_c("v-col", {
     staticClass: "font-weight-bold"
-  }, [_vm._v("\n                    " + _vm._s(_vm.team_home) + "\n                ")]), _vm._v(" "), _vm._l(_vm.periods, function (period, i) {
+  }, [_vm._v("\n                " + _vm._s(_vm.away_team) + "\n            ")]), _vm._v(" "), _vm._l(_vm.periods, function (period, i) {
     return _c("v-col", {
       key: i
-    }, [_vm._v("\n                    " + _vm._s(period.score_home) + "\n                ")]);
+    }, [_vm._v("\n                " + _vm._s(period.away_score) + "\n            ")]);
   }), _vm._v(" "), _c("v-col", {
     staticClass: "font-weight-bold"
-  }, [_vm._v(_vm._s(_vm.total_home))])], 2), _vm._v(" "), _c("v-row", [_c("v-col", {
+  }, [_vm._v(_vm._s(_vm.total_away))])], 2), _vm._v(" "), _c("v-row", [_c("v-col", {
     staticClass: "font-weight-bold"
-  }, [_vm._v("\n                    " + _vm._s(_vm.team_away) + "\n                ")]), _vm._v(" "), _vm._l(_vm.periods, function (period, i) {
+  }, [_vm._v("\n                " + _vm._s(_vm.home_team) + "\n            ")]), _vm._v(" "), _vm._l(_vm.periods, function (period, i) {
     return _c("v-col", {
       key: i
-    }, [_vm._v("\n                    " + _vm._s(period.score_away) + "\n                ")]);
+    }, [_vm._v("\n                " + _vm._s(period.home_score) + "\n            ")]);
   }), _vm._v(" "), _c("v-col", {
     staticClass: "font-weight-bold"
-  }, [_vm._v(_vm._s(_vm.total_away))])], 2)], 1)], 1)], 1);
+  }, [_vm._v(_vm._s(_vm.total_home))])], 2)], 1), _vm._v(" "), _c("pre", [_vm._v(_vm._s(_vm.game))])], 1);
 };
 
 var staticRenderFns = [];
@@ -5963,7 +6073,7 @@ var render = function render() {
   var _vm = this,
       _c = _vm._self._c;
 
-  return _c("div", [_vm._v("\n    This is where I'll list the stats\n")]);
+  return _c("div", [_c("pre", [_vm._v(_vm._s(_vm.game))])]);
 };
 
 var staticRenderFns = [];
@@ -5988,7 +6098,9 @@ var render = function render() {
   var _vm = this,
       _c = _vm._self._c;
 
-  return _c("v-container", [_c("v-tabs-items", {
+  return _c("v-container", {
+    staticClass: "pt-0"
+  }, [_c("v-tabs-items", {
     model: {
       value: _vm.tab,
       callback: function callback($$v) {
@@ -6003,11 +6115,19 @@ var render = function render() {
       attrs: {
         flat: ""
       }
-    }, [_c("game-scores")], 1) : _c("v-card", {
+    }, [_c("game-scores", {
+      attrs: {
+        game: _vm.game
+      }
+    })], 1) : _c("v-card", {
       attrs: {
         flat: ""
       }
-    }, [_c("game-stats")], 1)], 1);
+    }, [_c("game-stats", {
+      attrs: {
+        game: _vm.game
+      }
+    })], 1)], 1);
   }), 1)], 1);
 };
 
@@ -6169,6 +6289,43 @@ render._withStripped = true;
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/RefreshBar.vue?vue&type=template&id=17380fe3&":
+/*!****************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/RefreshBar.vue?vue&type=template&id=17380fe3& ***!
+  \****************************************************************************************************************************************************************************************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
+/* harmony export */ });
+var render = function render() {
+  var _vm = this,
+      _c = _vm._self._c;
+
+  return _c("v-container", [_c("v-row", [_c("v-col", {
+    staticClass: "pb-0"
+  }, [_vm.lastRefresh ? _c("div", [_vm._v("Data last refreshed at " + _vm._s(_vm.lastRefresh))]) : _c("div", [_vm._v("Preparing data...")]), _vm._v(" "), _c("div", {
+    staticStyle: {
+      height: "10px"
+    }
+  }, [_vm.loading ? _c("v-progress-linear", {
+    attrs: {
+      indeterminate: "",
+      color: "success",
+      "background-color": "white"
+    }
+  }) : _vm._e()], 1)])], 1)], 1);
+};
+
+var staticRenderFns = [];
+render._withStripped = true;
+
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/TopBox.vue?vue&type=template&id=4f7eeb61&":
 /*!************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/TopBox.vue?vue&type=template&id=4f7eeb61& ***!
@@ -6193,22 +6350,22 @@ var render = function render() {
     staticClass: "tw-flex tw-justify-around"
   }, [_c("v-img", {
     attrs: {
-      src: "/images/" + _vm.logo_home,
+      src: "/images/" + _vm.logo_away,
       "max-height": "150px",
       "max-width": "150px",
       contain: ""
     }
   }), _vm._v(" "), _c("div", {
     staticClass: "primary--text my-auto tw-text-4xl tw-font-bold"
-  }, [_vm._v("\n                    92\n                ")])], 1)]), _vm._v(" "), _c("v-col", {
+  }, [_vm._v("\n                    " + _vm._s(_vm.away_score) + "\n                ")])], 1)]), _vm._v(" "), _c("v-col", {
     staticClass: "tw-flex tw-justify-around pb-0"
   }, [_c("div", {
     staticClass: "flex-column my-auto mb-0"
   }, [_c("div", {
     staticClass: "text-center tw-text-2xl tw-py-2"
-  }, [_vm._v(_vm._s(_vm.gameStatus.toUpperCase()))]), _vm._v(" "), _c("div", {
+  }, [_vm._v(_vm._s(_vm.gameStatus))]), _vm._v(" "), _c("div", {
     staticClass: "text-center"
-  }, [_vm._v("\n                    " + _vm._s(_vm.team_away) + " @ " + _vm._s(_vm.team_home) + "\n                ")]), _vm._v(" "), _c("div", {
+  }, [_vm._v("\n                    " + _vm._s(_vm.away_team) + " @ " + _vm._s(_vm.home_team) + "\n                ")]), _vm._v(" "), _c("div", {
     staticClass: "text-center"
   }, [_vm._v("\n                    " + _vm._s(_vm.gameDate) + "\n                ")]), _vm._v(" "), _c("v-tabs", {
     attrs: {
@@ -6238,9 +6395,9 @@ var render = function render() {
     staticClass: "tw-flex tw-justify-around"
   }, [_c("div", {
     staticClass: "primary--text my-auto tw-text-4xl tw-font-bold"
-  }, [_vm._v("\n                    96\n                ")]), _vm._v(" "), _c("v-img", {
+  }, [_vm._v("\n                    " + _vm._s(_vm.home_score) + "\n                ")]), _vm._v(" "), _c("v-img", {
     attrs: {
-      src: "/images/" + _vm.logo_away,
+      src: "/images/" + _vm.logo_home,
       "max-height": "150px",
       "max-width": "150px",
       contain: ""
@@ -30683,6 +30840,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/RefreshBar.vue?vue&type=script&lang=js&":
+/*!*************************************************************************!*\
+  !*** ./resources/js/components/RefreshBar.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_RefreshBar_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./RefreshBar.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/RefreshBar.vue?vue&type=script&lang=js&");
+ /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_RefreshBar_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
 /***/ "./resources/js/components/TopBox.vue?vue&type=script&lang=js&":
 /*!*********************************************************************!*\
   !*** ./resources/js/components/TopBox.vue?vue&type=script&lang=js& ***!
@@ -30831,6 +31004,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Menu_vue_vue_type_template_id_7fa2c4ca_scoped_true___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
 /* harmony export */ });
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Menu_vue_vue_type_template_id_7fa2c4ca_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./Menu.vue?vue&type=template&id=7fa2c4ca&scoped=true& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/Menu.vue?vue&type=template&id=7fa2c4ca&scoped=true&");
+
+
+/***/ }),
+
+/***/ "./resources/js/components/RefreshBar.vue?vue&type=template&id=17380fe3&":
+/*!*******************************************************************************!*\
+  !*** ./resources/js/components/RefreshBar.vue?vue&type=template&id=17380fe3& ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "render": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_RefreshBar_vue_vue_type_template_id_17380fe3___WEBPACK_IMPORTED_MODULE_0__.render),
+/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_RefreshBar_vue_vue_type_template_id_17380fe3___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
+/* harmony export */ });
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_use_0_node_modules_vue_loader_lib_loaders_templateLoader_js_ruleSet_1_rules_2_node_modules_vue_loader_lib_index_js_vue_loader_options_RefreshBar_vue_vue_type_template_id_17380fe3___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./RefreshBar.vue?vue&type=template&id=17380fe3& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5.use[0]!./node_modules/vue-loader/lib/loaders/templateLoader.js??ruleSet[1].rules[2]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/js/components/RefreshBar.vue?vue&type=template&id=17380fe3&");
 
 
 /***/ }),
@@ -42975,8 +43165,7 @@ var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__
 
 
 
-
-_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3___default()(component, {VApp: vuetify_lib_components_VApp__WEBPACK_IMPORTED_MODULE_4__["default"],VCard: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["default"],VCardText: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_6__.VCardText,VCardTitle: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_6__.VCardTitle,VCol: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["default"],VContainer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_8__["default"],VImg: vuetify_lib_components_VImg__WEBPACK_IMPORTED_MODULE_9__["default"],VMain: vuetify_lib_components_VMain__WEBPACK_IMPORTED_MODULE_10__["default"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_11__["default"]})
+_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3___default()(component, {VApp: vuetify_lib_components_VApp__WEBPACK_IMPORTED_MODULE_4__["default"],VCard: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_5__["default"],VCardText: vuetify_lib_components_VCard__WEBPACK_IMPORTED_MODULE_6__.VCardText,VCol: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["default"],VContainer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_8__["default"],VImg: vuetify_lib_components_VImg__WEBPACK_IMPORTED_MODULE_9__["default"],VMain: vuetify_lib_components_VMain__WEBPACK_IMPORTED_MODULE_10__["default"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_11__["default"]})
 
 
 /* hot reload */
@@ -43250,6 +43439,60 @@ _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_
 /* hot reload */
 if (false) { var api; }
 component.options.__file = "resources/js/components/Menu.vue"
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/RefreshBar.vue":
+/*!************************************************!*\
+  !*** ./resources/js/components/RefreshBar.vue ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _RefreshBar_vue_vue_type_template_id_17380fe3___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./RefreshBar.vue?vue&type=template&id=17380fe3& */ "./resources/js/components/RefreshBar.vue?vue&type=template&id=17380fe3&");
+/* harmony import */ var _RefreshBar_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./RefreshBar.vue?vue&type=script&lang=js& */ "./resources/js/components/RefreshBar.vue?vue&type=script&lang=js&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony import */ var _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../../../node_modules/vuetify-loader/lib/runtime/installComponents.js */ "./node_modules/vuetify-loader/lib/runtime/installComponents.js");
+/* harmony import */ var _node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vuetify/lib/components/VGrid */ "./node_modules/vuetify/lib/components/VGrid/VCol.js");
+/* harmony import */ var vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuetify/lib/components/VGrid */ "./node_modules/vuetify/lib/components/VGrid/VContainer.js");
+/* harmony import */ var vuetify_lib_components_VProgressLinear__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vuetify/lib/components/VProgressLinear */ "./node_modules/vuetify/lib/components/VProgressLinear/VProgressLinear.js");
+/* harmony import */ var vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! vuetify/lib/components/VGrid */ "./node_modules/vuetify/lib/components/VGrid/VRow.js");
+
+
+
+
+
+/* normalize component */
+;
+var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _RefreshBar_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _RefreshBar_vue_vue_type_template_id_17380fe3___WEBPACK_IMPORTED_MODULE_0__.render,
+  _RefreshBar_vue_vue_type_template_id_17380fe3___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* vuetify-loader */
+;
+
+
+
+
+_node_modules_vuetify_loader_lib_runtime_installComponents_js__WEBPACK_IMPORTED_MODULE_3___default()(component, {VCol: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_4__["default"],VContainer: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_5__["default"],VProgressLinear: vuetify_lib_components_VProgressLinear__WEBPACK_IMPORTED_MODULE_6__["default"],VRow: vuetify_lib_components_VGrid__WEBPACK_IMPORTED_MODULE_7__["default"]})
+
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/RefreshBar.vue"
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
 
 /***/ }),

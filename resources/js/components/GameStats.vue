@@ -1,11 +1,17 @@
 <template>
     <div>
-        This is where I'll list the stats
+        <pre>{{ game }}</pre>
     </div>
 </template>
 
 <script>
 export default {
-    
+    props: ['game'],
+
+    data() {
+        return {
+            // 
+        } 
+    },
 }
 </script>

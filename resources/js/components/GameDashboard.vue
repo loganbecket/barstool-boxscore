@@ -20,7 +20,8 @@
 
                 <v-row>
                     <v-col>
-                        <game-tabs />
+                        <refresh-bar :loading="loading" />
+                        <game-tabs :game="game" />
                     </v-col>
                 </v-row>
             </v-container>
@@ -35,18 +36,21 @@
 
 import TopBox from './TopBox.vue';
 import GameTabs from './GameTabs.vue';
+import RefreshBar from './RefreshBar.vue';
 
 export default {
     components: {
         'top-box': TopBox,
         'game-tabs': GameTabs,
+        'refresh-bar': RefreshBar,
     },
 
     props: ['id'],
 
     data() {
         return {
-            game: {},
+            loading: false,
+            game: null,
             initialized: false,
             waitInSeconds: 15,
             timer: 0,
@@ -65,15 +69,10 @@ export default {
         },
 
         refreshData() {
-            Event.$emit('setLoadingStatus', true);
+            this.loading = true;
             axios.post('/game/' + this.id).then(response => {
-
-                console.log(response.data);
-
-                // TODO: remove artificial delay - done for effect until actual API request is made
-                setTimeout(() => {
-                    Event.$emit('setLoadingStatus', false);
-                }, 1000);
+                this.game = response.data;
+                this.loading = false;
             });
         }
     },

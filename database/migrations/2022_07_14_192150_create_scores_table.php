@@ -13,12 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('boxscores', function (Blueprint $table) {
+        Schema::create('scores', function (Blueprint $table) {
             $table->id();
-            $table->string('period');
-            $table->integer('score_home');
-            $table->integer('score_away');
+            $table->unsignedBigInteger('game_id');
+            $table->integer('period');
+            $table->integer('home_score');
+            $table->integer('away_score');
             $table->timestamps();
+
+            $table->foreign('game_id')
+                ->references('id')
+                ->on('games')
+                ->onDelete('cascade');
         });
     }
 
@@ -29,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('boxscores');
+        Schema::dropIfExists('scores');
     }
 };

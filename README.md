@@ -9,7 +9,7 @@ Jupiter gives publishers the tools to build smarter proposals in less time. We d
 
 ### Prerequisites:
 - A server running PHP 8.0+, Composer, and MySql
-- A web server that has been configured to serve this directory
+- A web server that has been configured to serve the project directory
     - NOTE: If no such environment exists, Laravel's <a href="https://laravel.com/docs/master/sail#installing-sail-into-existing-applications">Sail</a> package can easily spin up a Docker container
 
 

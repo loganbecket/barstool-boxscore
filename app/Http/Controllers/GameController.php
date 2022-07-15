@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Game;
 use Illuminate\Http\Request;
+use App\Services\DataManager;
+
+const API_WAIT_TIME = 15;
 
 class GameController extends Controller
 {
@@ -22,30 +26,36 @@ class GameController extends Controller
     }
 
 
-        /**
-     * Comment
+    /**
+     * Get the data for the game, either from the API or from cache
      *
-     * @param 
-     * @return ???
+     * @param $request Request
+     * @return array
      */
     public function getGameData(Request $request)
     {
-        return 'time to make the donuts';
-        // $game = Game::where('id', $request->id)
-        //     ->first();
 
-        // $response = file_get_contents($url);
-        // $data = json_decode($response);
+        $game = Game::where('id', $request->id)->first();
 
-        // logger($response);
+        $now = Carbon::parse(now());
+        $lastQueried = Carbon::parse($game->updated_at);
+        $secondsSinceLastAPIquery = $now->diffInSeconds($lastQueried);
 
-        // return response()->json($data);
+        if ($game->updated_at == null || $secondsSinceLastAPIquery > API_WAIT_TIME) {
+            $response = file_get_contents($game->feed);
+            DataManager::parseAndLoad(json_decode($response), $game);
+        }
+        
+        $data = Game::with([
+            'homeTeam', 
+            'awayTeam',
+            'score'
+        ])
+            ->where('id', $request->id)
+            ->first();
 
-        // check last query
+        return $data;
 
-        // if within 15 seconds, return cached values
-
-        // if > 15s, make new API request
     }
 
 }

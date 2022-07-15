@@ -1,118 +1,109 @@
 <template>
-    <div>
-        
-        <div v-if="lastRefresh">Data last refreshed at {{ lastRefresh }}</div>
-        <div v-else>Preparing data...</div>
-        
-        <v-card class="tw-mt-2" :loading="loading">
-            <v-container class="elevation-3">
-                <v-row class="tw-border-b">
-                    <v-col></v-col>
-                    
-                    <v-col
-                        v-for="(period, i) in periods"
-                        :key="i"
-                    >
-                        {{ periodPrefix }}{{ period.number }}
-                    </v-col>
+    <v-card class="tw-mt-2">
+        <v-container class="elevation-3">
+            <v-row class="tw-border-b">
+                <v-col></v-col>
+                
+                <v-col
+                    v-for="(period, i) in periods"
+                    :key="i"
+                >
+                    {{ periodPrefix }}{{ period.number }}
+                </v-col>
 
-                    <v-col>Total</v-col>
-                </v-row>
+                <v-col>Total</v-col>
+            </v-row>
 
-                <v-row>
-                    <v-col class="font-weight-bold">
-                        {{ team_home }}
-                    </v-col>
-                    
-                    <v-col
-                        v-for="(period, i) in periods"
-                        :key="i"
-                    >
-                        {{ period.score_home }}
-                    </v-col>
+            <v-row>
+                <v-col class="font-weight-bold">
+                    {{ away_team }}
+                </v-col>
 
-                    <v-col class="font-weight-bold">{{ total_home }}</v-col>
-                </v-row>
+                <v-col
+                    v-for="(period, i) in periods"
+                    :key="i"
+                >
+                    {{ period.away_score }}
+                </v-col>
 
-                <v-row>
-                    <v-col class="font-weight-bold">
-                        {{ team_away }}
-                    </v-col>
+                <v-col class="font-weight-bold">{{ total_away }}</v-col>
+            </v-row>
 
-                    <v-col
-                        v-for="(period, i) in periods"
-                        :key="i"
-                    >
-                        {{ period.score_away }}
-                    </v-col>
+            <v-row>
+                <v-col class="font-weight-bold">
+                    {{ home_team }}
+                </v-col>
+                
+                <v-col
+                    v-for="(period, i) in periods"
+                    :key="i"
+                >
+                    {{ period.home_score }}
+                </v-col>
 
-                    <v-col class="font-weight-bold">{{ total_away }}</v-col>
-                </v-row>
-            </v-container>
-        </v-card>
-    </div>
+                <v-col class="font-weight-bold">{{ total_home }}</v-col>
+            </v-row>
+
+        </v-container>
+        <pre>{{ game }}</pre>
+    </v-card>
 </template>
 
 <script>
 export default {
-    data() {
-        return {
-            loading: false,
-            team_home: "Thunder",
-            team_away: "Heat",
-            periods: [
-                { number: 1, score_home: 18, score_away: 22 },
-                { number: 2, score_home: 29, score_away: 31 },
-                { number: 3, score_home: 25, score_away: 19 },
-                { number: 4, score_home: 20, score_away: 24 },
-            ],
-            periodType: "Quarter",
-            lastRefresh: null
-        }
-    },
+    props: ['game'],
 
     computed: {
+
+        home_team() {
+            if (this.game) {
+                return this.game.home_team.last_name;
+            }
+            return null;
+        },
+
+        away_team() {
+            if (this.game) {
+                return this.game.away_team.last_name;
+            }
+            return null;
+        },
+
         periodPrefix() {
-            if (this.periodType == "Quarter") {
+            if (this.game.league.toLowerCase() == "nba") {
                 return "Q";
             }
             return "";
         },
 
+        periods() {
+            let score = [];
+
+            if (this.game) {
+                this.game.score.forEach(e => {
+                    score.push({
+                        number: e.period,
+                        home_score: e.home_score,
+                        away_score: e.away_score
+                    })
+                });
+            }
+
+            return score;
+        },
+
         total_home() {
             return this.periods.reduce((accumulator, object) => {
-                return accumulator + object.score_home;
+                return accumulator + object.home_score;
             }, 0);
         },
 
         total_away() {
             return this.periods.reduce((accumulator, object) => {
-                return accumulator + object.score_away;
+                return accumulator + object.away_score;
             }, 0);
         },
     },
 
-    methods: {
-        formattedDate() {
-            let d = new Date();
-            return d.toLocaleTimeString([], {
-                year: 'numeric', 
-                month: 'numeric', 
-                day: 'numeric', 
-                hour: 'numeric', 
-                minute: '2-digit',
-                second: '2-digit'
-            });
-        }
-    },
-
-    mounted() {
-        Event.$on('setLoadingStatus', value => {
-            this.loading = value;
-            if (! value) {
-                this.lastRefresh = this.formattedDate();
-            }
-        });
-    }
 }
 </script>

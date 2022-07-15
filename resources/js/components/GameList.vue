@@ -12,7 +12,7 @@
                             color="#eee"
                             style="border: none;"
                         >
-                            <v-card-title>
+                            <div class="tw-p-4 tw-pb-0 tw-flex">
                                 <div class="tw-flex tw-shrink pr-4">
                                     <v-img
                                         :src="'/images/' + league + '.png'"
@@ -20,8 +20,10 @@
                                         contain
                                     />
                                 </div>
-                                Match-ups:    
-                            </v-card-title>
+                                <div class="tw-text-3xl tw-my-auto">
+                                    Select a match-up:    
+                                </div>
+                            </div>
 
                             <v-card-text>
                                 <game-tile 

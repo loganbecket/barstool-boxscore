@@ -75,12 +75,12 @@ export default {
 
         homeTeam() {
             let home = this.game.home_team;
-            return home.first_name + home.last_name;
+            return home.first_name + " " + home.last_name;
         },
 
         awayTeam() {
             let away = this.game.away_team; 
-            return away.first_name + away.last_name;
+            return away.first_name + " " + away.last_name;
         },
 
         gameTime() {
